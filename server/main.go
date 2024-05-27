@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/skip2/go-qrcode"
+
 	"bufio"
 	"io"
 	"os"
@@ -19,6 +21,38 @@ import (
 
 func getHello(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello, world!")
+}
+
+func generateQR(code string, filename string) {
+    qrCode, err := qrcode.Encode(code, qrcode.Medium, 256)
+    if err!= nil {
+        fmt.Printf("Error encoding QR code: %s\n", err)
+        return
+    }
+
+    err = os.WriteFile(filename, qrCode, 0644)
+    if err!= nil {
+        fmt.Printf("Error writing QR code to file: %s\n", err)
+        return
+    }
+
+    fmt.Printf("QR code generated and saved as %s\n", filename)
+}
+
+func getUserDetails(w http.ResponseWriter, r *http.Request) {
+	/*
+		1. DB calls to gather user information with team
+		2. Get Dinner, Breakfast and snacks status of the user from DB
+		3. Send all the details as in JSON format to the dashboard
+	*/ 
+}
+
+func postFoodUpdate(w http.ResponseWriter, r *http.Request) {
+	/* 
+		1. Get the body in request
+		2. Update the status for the food
+		3. Return confirmation
+	*/
 }
 
 func LoadEnv(filename string) error {
@@ -82,8 +116,6 @@ func auth(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	
-
 	var creds struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
@@ -146,9 +178,14 @@ func main() {
 		Price uint
 	}
 
+	generateQR("http://your-dashboard-url/123", "adi.png")
+
 	http.HandleFunc("/", getHello)
 	http.HandleFunc("/auth", auth)
-	fmt.Println("Server is running on localhost:7500...")
+	http.HandleFunc("/user/details/:id", getUserDetails)
+	http.HandleFunc("/user/update/:id", postFoodUpdate)
+
+	
 
 	db, err := gorm.Open(postgres.Open(os.Getenv("DB_URL")), &gorm.Config{})
 	if err != nil {
@@ -161,8 +198,7 @@ func main() {
 
     if err := http.ListenAndServe(":7500", nil); err!= nil {
         log.Fatalf("Failed to start server: %v", err)
-    }
-
-
-	// dbConnect("postgresql://hackman_owner:6kRxDQUd2ATg@ep-empty-fire-a5vgftnm.us-east-2.aws.neon.tech/hackman?sslmode=require")
+    }else {
+		fmt.Println("Server is running on localhost:7500...")
+	}
 }
