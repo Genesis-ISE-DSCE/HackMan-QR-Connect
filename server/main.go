@@ -14,6 +14,7 @@ import (
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/rs/cors"
 	"github.com/skip2/go-qrcode"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -412,17 +413,24 @@ func main() {
     //     GenerateQR(string(idText), fmt.Sprintf("%v.png", participants[i].Name))
     // }
 
-    databases, err := client.ListDatabaseNames(ctx, bson.M{})
+    _, err = client.ListDatabaseNames(ctx, bson.M{})
 	if err != nil {
 		log.Fatal(err)
 	}
 
-    fmt.Println(databases)
+    c := cors.New(cors.Options{
+        AllowedOrigins:   []string{"http://localhost:5173"}, // Replace with your frontend URL
+        AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
+        AllowedHeaders:   []string{"Authorization", "Content-Type"},
+        AllowCredentials: true,
+    })
+     
     http.HandleFunc("/auth", auth)
     http.Handle("/user/details/", middleware(http.HandlerFunc(getUserDetails)))
     http.Handle("/user/update/", middleware(http.HandlerFunc(postFoodUpdate)))
-
-    if err := http.ListenAndServe(":7500", nil); err != nil {
+    handler:=c.Handler(http.DefaultServeMux)
+    
+    if err := http.ListenAndServe(":7500", handler); err != nil {
         log.Fatalf("Failed to start server: %v", err)
     } else {
         fmt.Println("Server is running on localhost:7500...")

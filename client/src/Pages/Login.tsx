@@ -1,12 +1,23 @@
 import React, { useState } from "react";
+import connector from "../api";
 
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e: React.MouseEvent) => {
+  const handleSubmit = async (e: React.MouseEvent) => {
     e.preventDefault();
-    console.log("submit");
+    try {
+      const response = await connector.post("/auth", {
+        username,
+        password,
+      });
+
+      localStorage.setItem("token", response.data.token);
+      console.log(response.data);
+    } catch (error) {
+      console.error(error);
+    }
   };
   return (
     <div className="w-screen h-screen flex flex-col  items-center justify-center bg-slate-800">
