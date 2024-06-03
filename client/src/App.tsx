@@ -4,6 +4,10 @@ import Login from "./Pages/Login";
 import Dashboard from "./Pages/Dashboard";
 
 function App() {
+  const params = window.location.href;
+  const userId = params.split("/")[4];
+
+  localStorage.setItem("userId", userId);
   return (
     <BrowserRouter>
       <Routes>

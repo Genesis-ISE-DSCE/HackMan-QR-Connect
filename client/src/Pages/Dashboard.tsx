@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import "tailwindcss/tailwind.css";
+import connector from "../api";
 
 interface Participant {
   teamName: string;
@@ -16,20 +17,51 @@ interface Participant {
 
 const Dashboard: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
 
   const [participant, setParticipant] = useState<Participant>({
-    teamName: "trying..",
-    name: "Aditya Agarwal",
-    email: "adi790u@gmail.com",
-    phoneNum: "9179822431",
-    breakfast: true,
-    lunch: true,
+    teamName: "",
+    name: "",
+    email: "",
+    phoneNum: "",
+    breakfast: false,
+    lunch: false,
     dinner: false,
-    snack1: true,
+    snack1: false,
     snack2: false,
   });
 
-  const toggleMealStatus = (meal: keyof Participant) => {
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        navigate("/");
+      }
+      const response = await connector.get(`/user/details/${id}`);
+      const data = response.data.participant;
+
+      setParticipant({
+        teamName: data.TeamName,
+        name: data.Name,
+        email: data.Email,
+        phoneNum: data.PhoneNum,
+        breakfast: data.Breakfast,
+        lunch: data.Lunch,
+        dinner: data.Dinner,
+        snack1: data.Snack1,
+        snack2: data.Snack2,
+      });
+    };
+    fetchData();
+  }, [id]);
+
+  const toggleMealStatus = async (meal: keyof Participant) => {
+    const mealData = {
+      Meal: meal,
+    };
+    await connector.post(`/user/update/${id}`, mealData);
+
     setParticipant((prevState) => ({
       ...prevState,
       [meal]: !prevState[meal],
@@ -44,36 +76,42 @@ const Dashboard: React.FC = () => {
         </h1>
         <div className="space-y-4">
           <div className="flex flex-col mb-4">
-            <h2 className="text-lg font-semibold text-neutral-200">
-              Team Name
+            <h2 className="text-2xl font-semibold text-neutral-200 tracking-wider">
+              Team Name :
             </h2>
-            <p className="text-gray-700 text-xl bg-gray-100 rounded-lg p-2 mt-1">
+            <p className="text-gray-300 text-lg rounded-lg mt-2 font-extralight font-mono overflow-auto">
               {participant.teamName}
             </p>
           </div>
           <div className="flex flex-col mb-4">
-            <h2 className="text-lg font-semibold text-neutral-200">Name</h2>
-            <p className="text-gray-700 text-xl bg-gray-100 rounded-lg p-2 mt-1">
+            <h2 className="text-2xl font-semibold text-neutral-200 tracking-wider">
+              Name :
+            </h2>
+            <p className="text-gray-300 text-lg rounded-lg mt-2 font-extralight font-mono overflow-auto">
               {participant.name}
             </p>
           </div>
           <div className="flex flex-col mb-4">
-            <h2 className="text-lg font-semibold text-neutral-200">Email</h2>
-            <p className="text-gray-700 text-xl bg-gray-100 rounded-lg p-2 mt-1">
+            <h2 className="text-2xl font-semibold text-neutral-200 tracking-wider">
+              Email :
+            </h2>
+            <p className="text-gray-300 text-lg rounded-lg mt-2 font-extralight font-mono overflow-auto">
               {participant.email}
             </p>
           </div>
           <div className="flex flex-col mb-4">
-            <h2 className="text-lg font-semibold text-neutral-200">
-              Phone Number
+            <h2 className="text-2xl font-semibold text-neutral-200 tracking-wider">
+              Phone Number :
             </h2>
-            <p className="text-gray-700 text-xl bg-gray-100 rounded-lg p-2 mt-1">
+            <p className="text-gray-300 text-lg rounded-lg mt-2 font-extralight font-mono">
               {participant.phoneNum}
             </p>
           </div>
           <div className="flex flex-col mb-4">
-            <h2 className="text-lg font-semibold text-neutral-200">Meals</h2>
-            <ul className="text-gray-700 space-y-2 mt-1">
+            <h2 className="text-2xl font-semibold text-neutral-200 tracking-wider">
+              Meals :
+            </h2>
+            <ul className="text-gray-700 space-y-2 mt-2">
               {[
                 { meal: "breakfast", label: "Breakfast" },
                 { meal: "lunch", label: "Lunch" },

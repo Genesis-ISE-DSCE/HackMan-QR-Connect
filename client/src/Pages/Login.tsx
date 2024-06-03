@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import connector from "../api";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -14,7 +17,8 @@ function Login() {
       });
 
       localStorage.setItem("token", response.data.token);
-      console.log(response.data);
+      const userId = localStorage.getItem("userId");
+      navigate(`/dashboard/${userId}`);
     } catch (error) {
       console.error(error);
     }
