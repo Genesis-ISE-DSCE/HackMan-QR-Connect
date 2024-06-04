@@ -26,7 +26,8 @@ import (
 var client *mongo.Client
 
 func GenerateQR(code string, filename string) {
-    qrCode, err := qrcode.Encode(fmt.Sprintf("http://localhost:5173/%v", code), qrcode.Medium, 256)
+    fmt.Println("here")
+    qrCode, err := qrcode.Encode(fmt.Sprintf("https://hackman-qr.netlify.app/dashboard/%v", code), qrcode.Medium, 256)
     if err != nil {
         fmt.Printf("Error encoding QR code: %s\n", err)
         return
@@ -147,12 +148,14 @@ func getUserDetails(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    fmt.Println(objID)
+
     // Create a timeout context for the MongoDB operation
     ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
     defer cancel()
 
     // Assuming you have a MongoDB client instance named 'client'
-    database := client.Database("hackman-qr")
+    database := client.Database("hackman-qr-connect")
     participantCollection := database.Collection("participants")
 
     // Query the collection using the ObjectID
@@ -220,7 +223,7 @@ func postFoodUpdate(w http.ResponseWriter, r *http.Request) {
     ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
     defer cancel()
 
-    database := client.Database("hackman-qr")
+    database := client.Database("hackman-qr-connect")
     participantCollection := database.Collection("participants")
 
     var participant Participants
@@ -298,8 +301,6 @@ func middleware(next http.Handler) http.Handler {
 			})
 			if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 				ctx := context.WithValue(r.Context(), "props", claims)
-				// Access context values in handlers like this
-				// props, _ := r.Context().Value("props").(jwt.MapClaims)
 				next.ServeHTTP(w, r.WithContext(ctx))
 			} else {
 				fmt.Println(err)
@@ -380,14 +381,14 @@ func main() {
         os.Exit(1)
     }
 
-    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-    defer cancel()
+    // ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+    // defer cancel()
 
-    // Assuming you have a MongoDB client instance named 'client'
-    // database := client.Database("hackman-qr")
+    // // Assuming you have a MongoDB client instance named 'client'
+    // database := client.Database("hackman-qr-connect")
     // participantsCollection := database.Collection("participants")
 
-    // Query the collection using the ObjectID
+    // // Query the collection using the ObjectID
 
     // cur, err := participantsCollection.Find(ctx, bson.M{})
     // if err != nil {
@@ -413,13 +414,13 @@ func main() {
     //     GenerateQR(string(idText), fmt.Sprintf("%v.png", participants[i].Name))
     // }
 
-    _, err = client.ListDatabaseNames(ctx, bson.M{})
-	if err != nil {
-		log.Fatal(err)
-	}
+    // _, err = client.ListDatabaseNames(ctx, bson.M{})
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
     c := cors.New(cors.Options{
-        AllowedOrigins:   []string{"http://localhost:5173"}, // Replace with your frontend URL
+        AllowedOrigins:   []string{"https://hackman-qr.netlify.app"}, // Replace with your frontend URL
         AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
         AllowedHeaders:   []string{"Authorization", "Content-Type"},
         AllowCredentials: true,
@@ -432,7 +433,6 @@ func main() {
     
     if err := http.ListenAndServe(":7500", handler); err != nil {
         log.Fatalf("Failed to start server: %v", err)
-    } else {
-        fmt.Println("Server is running on localhost:7500...")
     }
 }
+
