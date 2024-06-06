@@ -381,46 +381,8 @@ func main() {
         os.Exit(1)
     }
 
-    // ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-    // defer cancel()
-
-    // // Assuming you have a MongoDB client instance named 'client'
-    // database := client.Database("hackman-qr-connect")
-    // participantsCollection := database.Collection("participants")
-
-    // // Query the collection using the ObjectID
-
-    // cur, err := participantsCollection.Find(ctx, bson.M{})
-    // if err != nil {
-    //     log.Printf("Error finding participants: %v", err)
-    //     return
-    // }
-    // defer cur.Close(ctx)
-
-    // var participants []Participants
-    // if err = cur.All(ctx, &participants); err != nil {
-    //     log.Printf("Error decoding participants: %v", err)
-    //     return
-    // }
-
-    // fmt.Println(participants)
-
-    // for i := 0; i < len(participants); i++ {
-    //     idText, err := participants[i].ID.MarshalText()
-    //     if err != nil {
-    //         log.Printf("Error marshaling ID: %v", err)
-    //         continue
-    //     }
-    //     GenerateQR(string(idText), fmt.Sprintf("%v.png", participants[i].Name))
-    // }
-
-    // _, err = client.ListDatabaseNames(ctx, bson.M{})
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
     c := cors.New(cors.Options{
-        AllowedOrigins:   []string{"https://hackman-qr.netlify.app"}, // Replace with your frontend URL
+        AllowedOrigins:   []string{"https://hackman-qr.netlify.app"}, 
         AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
         AllowedHeaders:   []string{"Authorization", "Content-Type"},
         AllowCredentials: true,
@@ -430,8 +392,10 @@ func main() {
     http.Handle("/user/details/", middleware(http.HandlerFunc(getUserDetails)))
     http.Handle("/user/update/", middleware(http.HandlerFunc(postFoodUpdate)))
     handler:=c.Handler(http.DefaultServeMux)
+
+    port := os.Getenv("PORT")
     
-    if err := http.ListenAndServe(":7500", handler); err != nil {
+    if err := http.ListenAndServe(fmt.Sprintf(":%v", port), handler); err != nil {
         log.Fatalf("Failed to start server: %v", err)
     }
 }
