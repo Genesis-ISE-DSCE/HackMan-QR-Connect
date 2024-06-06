@@ -372,14 +372,14 @@ func auth(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 
-    err := LoadEnv(".env")
+    // err := LoadEnv(".env")
 
     client, _ = dbStart()
     
-    if err != nil {
-        fmt.Printf("Error loading .env file: %v\n", err)
-        os.Exit(1)
-    }
+    // if err != nil {
+    //     fmt.Printf("Error loading .env file: %v\n", err)
+    //     os.Exit(1)
+    // }
 
     c := cors.New(cors.Options{
         AllowedOrigins:   []string{"https://hackman-qr.netlify.app"}, 
