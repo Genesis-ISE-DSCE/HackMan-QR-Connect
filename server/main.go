@@ -105,13 +105,7 @@ func dbStart() (*mongo.Client, context.Context) {
 }
 
 
-func init() {
-    err := LoadEnv(".env")
-    if err != nil {
-        fmt.Printf("Error loading .env file: %v\n", err)
-        os.Exit(1)
-    }
-}
+
 
 type Participants struct {
 	ID        primitive.ObjectID `bson:"_id,omitempty"` // MongoDB document ID
