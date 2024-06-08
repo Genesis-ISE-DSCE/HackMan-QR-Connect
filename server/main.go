@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -42,44 +41,44 @@ func GenerateQR(code string, filename string) {
     fmt.Printf("QR code generated and saved as %s\n", filename)
 }
 
-func LoadEnv(filename string) error {
-    file, err := os.Open(filename)
-    if err != nil {
-        return err
-    }
-    defer file.Close()
+// func LoadEnv(filename string) error {
+//     file, err := os.Open(filename)
+//     if err != nil {
+//         return err
+//     }
+//     defer file.Close()
 
-    scanner := bufio.NewScanner(file)
-    for scanner.Scan() {
-        line := strings.TrimSpace(scanner.Text())
+//     scanner := bufio.NewScanner(file)
+//     for scanner.Scan() {
+//         line := strings.TrimSpace(scanner.Text())
 
-        // Skip empty lines and comments
-        if len(line) == 0 || strings.HasPrefix(line, "#") {
-            continue
-        }
+//         // Skip empty lines and comments
+//         if len(line) == 0 || strings.HasPrefix(line, "#") {
+//             continue
+//         }
 
-        // Split line into key and value
-        parts := strings.SplitN(line, "=", 2)
-        if len(parts) != 2 {
-            return fmt.Errorf("invalid line: %s", line)
-        }
+//         // Split line into key and value
+//         parts := strings.SplitN(line, "=", 2)
+//         if len(parts) != 2 {
+//             return fmt.Errorf("invalid line: %s", line)
+//         }
 
-        key := strings.TrimSpace(parts[0])
-        value := strings.TrimSpace(parts[1])
+//         key := strings.TrimSpace(parts[0])
+//         value := strings.TrimSpace(parts[1])
 
-        // Set the environment variable
-        err = os.Setenv(key, value)
-        if err != nil {
-            return err
-        }
-    }
+//         // Set the environment variable
+//         err = os.Setenv(key, value)
+//         if err != nil {
+//             return err
+//         }
+//     }
 
-    if err := scanner.Err(); err != nil {
-        return err
-    }
+//     if err := scanner.Err(); err != nil {
+//         return err
+//     }
 
-    return nil
-}
+//     return nil
+// }
 
 func dbStart() (*mongo.Client, context.Context) {
  
